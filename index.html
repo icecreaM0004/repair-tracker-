@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<title>Repair Shop Tracker</title>
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#1B1E24" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Repairs" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>html,body{margin:0;padding:0;}</style>
+</head>
+<body>
+<style>
+  :root{
+    --bg:#1B1E24;
+    --surface:#242830;
+    --surface-2:#2C313B;
+    --line:#3A4048;
+    --text:#EDEAE3;
+    --text-dim:#9AA1AC;
+    --amber:#F2A33C;
+    --amber-dim:#7A5A2A;
+    --teal:#4FB0A0;
+    --red:#E1584B;
+    --blue:#5C9DE0;
+    --purple:#A084DC;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  .rst-root{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-sans);
+    min-height:100vh;
+    padding:0;
+    -webkit-font-smoothing:antialiased;
+  }
+  .rst-topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 24px;
+    border-bottom:1px solid var(--line);
+    background:var(--surface);
+  }
+  .rst-brand{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .rst-brand .tag{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.12em;
+    color:var(--amber);
+    border:1px solid var(--amber-dim);
+    padding:2px 6px;
+    border-radius:3px;
+  }
+  .rst-brand h1{
+    font-size:18px;
+    font-weight:600;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .rst-topbar-actions{display:flex;gap:10px;align-items:center;}
+  .rst-btn{
+    font-family:var(--font-sans);
+    font-size:13px;
+    font-weight:600;
+    padding:9px 14px;
+    border-radius:6px;
+    border:1px solid var(--line);
+    background:var(--surface-2);
+    color:var(--text);
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    transition:border-color .15s, transform .1s;
+  }
+  .rst-btn:hover{border-color:var(--text-dim);}
+  .rst-btn:active{transform:scale(0.97);}
+  .rst-btn-primary{
+    background:var(--amber);
+    color:#1B1E24;
+    border-color:var(--amber);
+  }
+  .rst-btn-primary:hover{background:#f5b45c;}
+  .rst-btn-icon{
+    width:36px;height:36px;padding:0;justify-content:center;
+  }
+  .rst-main{padding:20px 24px 60px;max-width:1200px;margin:0 auto;}
+
+  .rst-controls{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    margin-bottom:18px;
+  }
+  .rst-search{
+    flex:1;
+    min-width:200px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:10px 12px;
+    color:var(--text);
+    font-size:14px;
+    font-family:var(--font-sans);
+  }
+  .rst-search:focus{outline:none;border-color:var(--amber-dim);}
+  .rst-filter-pill{
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    letter-spacing:0.03em;
+    padding:8px 12px;
+    border-radius:20px;
+    border:1px solid var(--line);
+    background:var(--surface);
+    color:var(--text-dim);
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .rst-filter-pill.active{
+    border-color:var(--amber);
+    color:var(--amber);
+    background:rgba(242,163,60,0.08);
+  }
+
+  .rst-empty{
+    text-align:center;
+    padding:80px 20px;
+    color:var(--text-dim);
+  }
+  .rst-empty .big{font-size:40px;margin-bottom:10px;}
+
+  .rst-list{display:flex;flex-direction:column;gap:10px;}
+
+  .rst-ticket{
+    position:relative;
+    display:grid;
+    grid-template-columns:14px 1fr auto;
+    align-items:stretch;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:8px;
+    overflow:hidden;
+    cursor:pointer;
+    transition:border-color .15s, transform .1s;
+  }
+  .rst-ticket:hover{border-color:var(--text-dim);}
+  .rst-ticket:active{transform:scale(0.995);}
+  .rst-ticket-stub{
+    background:var(--stub-color, var(--text-dim));
+    position:relative;
+  }
+  .rst-ticket-stub::before, .rst-ticket-stub::after{
+    content:'';
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    width:10px;height:10px;
+    background:var(--bg);
+    border-radius:50%;
+  }
+  .rst-ticket-stub::before{top:-5px;}
+  .rst-ticket-stub::after{bottom:-5px;}
+
+  .rst-ticket-body{
+    padding:14px 16px;
+    display:grid;
+    grid-template-columns:110px 1.4fr 1fr 1fr;
+    gap:10px 16px;
+    align-items:center;
+  }
+  .rst-ticket-id{
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--text-dim);
+  }
+  .rst-ticket-customer{font-weight:600;font-size:14.5px;}
+  .rst-ticket-sub{font-size:12.5px;color:var(--text-dim);margin-top:2px;}
+  .rst-ticket-unit{font-size:13.5px;}
+  .rst-ticket-unit .type{font-size:11.5px;color:var(--text-dim);}
+  .rst-ticket-meta{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:4px;
+    text-align:right;
+  }
+  .rst-status{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    letter-spacing:0.05em;
+    padding:3px 8px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+  .rst-price{font-family:var(--font-mono);font-size:13px;color:var(--text-dim);}
+  .rst-ticket-side{
+    display:flex;
+    align-items:center;
+    padding:0 14px;
+    border-left:1px dashed var(--line);
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--text-dim);
+    text-align:center;
+    max-width:110px;
+  }
+
+  /* Modal */
+  .rst-overlay{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,0.55);
+    display:flex;align-items:flex-start;justify-content:center;
+    padding:40px 16px;
+    overflow-y:auto;
+    z-index:50;
+  }
+  .rst-modal{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    width:100%;
+    max-width:520px;
+    padding:22px;
+  }
+  .rst-modal h2{margin:0 0 4px;font-size:17px;}
+  .rst-modal .sub{color:var(--text-dim);font-size:12.5px;margin-bottom:18px;}
+  .rst-field{margin-bottom:14px;}
+  .rst-field label{
+    display:block;
+    font-size:11.5px;
+    font-family:var(--font-mono);
+    letter-spacing:0.04em;
+    color:var(--text-dim);
+    margin-bottom:6px;
+  }
+  .rst-field input, .rst-field select, .rst-field textarea{
+    width:100%;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:10px 11px;
+    color:var(--text);
+    font-family:var(--font-sans);
+    font-size:14px;
+  }
+  .rst-field textarea{resize:vertical;min-height:60px;}
+  .rst-field input:focus, .rst-field select:focus, .rst-field textarea:focus{
+    outline:none;border-color:var(--amber-dim);
+  }
+  .rst-row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .rst-modal-actions{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-top:20px;gap:10px;
+  }
+  .rst-btn-danger{background:transparent;color:var(--red);border-color:var(--red);}
+  .rst-btn-danger:hover{background:rgba(225,88,75,0.1);}
+  .rst-link-btn{
+    background:none;border:none;color:var(--text-dim);
+    font-size:12.5px;cursor:pointer;text-decoration:underline;
+  }
+  .rst-banner{
+    font-size:12.5px;
+    padding:10px 12px;
+    border-radius:6px;
+    margin-bottom:14px;
+  }
+  .rst-banner.err{background:rgba(225,88,75,0.12);color:#f0958b;border:1px solid rgba(225,88,75,0.3);}
+  .rst-banner.info{background:rgba(92,157,224,0.12);color:#9dc4ee;border:1px solid rgba(92,157,224,0.3);}
+  .rst-spinner{
+    width:16px;height:16px;border-radius:50%;
+    border:2px solid var(--line);border-top-color:var(--amber);
+    animation:rst-spin 0.7s linear infinite;
+  }
+  @keyframes rst-spin{to{transform:rotate(360deg);}}
+  .rst-loading-row{display:flex;align-items:center;gap:10px;color:var(--text-dim);font-size:13px;padding:30px;justify-content:center;}
+
+  @media (max-width:720px){
+    .rst-ticket-body{grid-template-columns:1fr;}
+    .rst-ticket-meta{align-items:flex-start;text-align:left;}
+    .rst-ticket-side{display:none;}
+    .rst-row2{grid-template-columns:1fr;}
+  }
+</style>
+
+<div class="rst-root" id="rst-root">
+  <div class="rst-topbar">
+    <div class="rst-brand">
+      <span class="tag">TICKETS</span>
+      <h1 id="rst-shop-name">Repair Tracker</h1>
+    </div>
+    <div class="rst-topbar-actions">
+      <button class="rst-btn rst-btn-icon" id="rst-settings-btn" title="Settings">⚙</button>
+      <button class="rst-btn rst-btn-primary" id="rst-new-btn">+ New Ticket</button>
+    </div>
+  </div>
+
+  <div class="rst-main">
+    <div id="rst-banner-area"></div>
+
+    <div class="rst-controls">
+      <input class="rst-search" id="rst-search" placeholder="Search customer, phone, unit, or ticket ID…" />
+      <div id="rst-filters" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    </div>
+
+    <div id="rst-list-area"></div>
+  </div>
+</div>
+
+<div id="rst-modal-root"></div>
+
+<script>
+(function(){
+  const STATUSES = [
+    { key: 'Received', color: '#5C9DE0' },
+    { key: 'Diagnosing', color: '#A084DC' },
+    { key: 'In Repair', color: '#F2A33C' },
+    { key: 'Waiting for Parts', color: '#E1584B' },
+    { key: 'Ready for Pickup', color: '#4FB0A0' },
+    { key: 'Released', color: '#6b7280' }
+  ];
+  const UNIT_TYPES = ['Laptop','Desktop','Phone','Tablet','Printer','Monitor','Other'];
+
+  let API_URL = '';
+  let records = [];
+  let activeStatusFilter = 'All';
+  let searchTerm = '';
+  let loading = false;
+
+  const listArea = document.getElementById('rst-list-area');
+  const bannerArea = document.getElementById('rst-banner-area');
+  const modalRoot = document.getElementById('rst-modal-root');
+  const filtersEl = document.getElementById('rst-filters');
+
+  function statusColor(status){
+    const s = STATUSES.find(s => s.key === status);
+    return s ? s.color : '#6b7280';
+  }
+
+  function escapeHtml(str){
+    return String(str == null ? '' : str).replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+
+  function showBanner(msg, type){
+    bannerArea.innerHTML = '<div class="rst-banner ' + type + '">' + escapeHtml(msg) + '</div>';
+  }
+  function clearBanner(){ bannerArea.innerHTML = ''; }
+
+  function renderFilters(){
+    const counts = {};
+    records.forEach(r => { counts[r['Status']] = (counts[r['Status']]||0) + 1; });
+    let html = '<button class="rst-filter-pill ' + (activeStatusFilter==='All'?'active':'') + '" data-status="All">ALL · ' + records.length + '</button>';
+    STATUSES.forEach(s => {
+      html += '<button class="rst-filter-pill ' + (activeStatusFilter===s.key?'active':'') + '" data-status="' + s.key + '" style="' + (activeStatusFilter===s.key ? 'border-color:'+s.color+';color:'+s.color+';' : '') + '">' + s.key.toUpperCase() + ' · ' + (counts[s.key]||0) + '</button>';
+    });
+    filtersEl.innerHTML = html;
+    filtersEl.querySelectorAll('.rst-filter-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeStatusFilter = btn.getAttribute('data-status');
+        renderFilters();
+        renderList();
+      });
+    });
+  }
+
+  function filteredRecords(){
+    return records.filter(r => {
+      if (activeStatusFilter !== 'All' && r['Status'] !== activeStatusFilter) return false;
+      if (searchTerm){
+        const hay = [r['ID'], r['Customer Name'], r['Phone'], r['Unit'], r['Unit Type']].join(' ').toLowerCase();
+        if (!hay.includes(searchTerm.toLowerCase())) return false;
+      }
+      return true;
+    }).sort((a,b) => (b['Created At']||'').localeCompare(a['Created At']||''));
+  }
+
+  function renderList(){
+    if (loading){
+      listArea.innerHTML = '<div class="rst-loading-row"><span class="rst-spinner"></span> Loading tickets…</div>';
+      return;
+    }
+    if (!API_URL){
+      listArea.innerHTML = '<div class="rst-empty"><div class="big">⚙</div><div>Set up your Google Sheet connection first.</div><br/><button class="rst-btn rst-btn-primary" id="rst-empty-settings">Open Settings</button></div>';
+      const b = document.getElementById('rst-empty-settings');
+      if (b) b.addEventListener('click', openSettingsModal);
+      return;
+    }
+    const list = filteredRecords();
+    if (list.length === 0){
+      listArea.innerHTML = '<div class="rst-empty"><div class="big">🗂</div><div>No tickets match right now.</div></div>';
+      return;
+    }
+    listArea.innerHTML = '<div class="rst-list">' + list.map(ticketHtml).join('') + '</div>';
+    listArea.querySelectorAll('.rst-ticket').forEach(el => {
+      el.addEventListener('click', () => openEditModal(el.getAttribute('data-id')));
+    });
+  }
+
+  function ticketHtml(r){
+    const color = statusColor(r['Status']);
+    const price = r['Price'] ? ('₱' + Number(r['Price']).toLocaleString()) : '—';
+    const date = r['Date In'] ? formatDate(r['Date In']) : '—';
+    return '' +
+      '<div class="rst-ticket" data-id="' + escapeHtml(r['ID']) + '">' +
+        '<div class="rst-ticket-stub" style="--stub-color:' + color + '"></div>' +
+        '<div class="rst-ticket-body">' +
+          '<div><div class="rst-ticket-id">' + escapeHtml(r['ID']) + '</div><div class="rst-ticket-sub">' + date + '</div></div>' +
+          '<div><div class="rst-ticket-customer">' + escapeHtml(r['Customer Name'] || 'Unnamed') + '</div><div class="rst-ticket-sub">' + escapeHtml(r['Phone']||'') + '</div></div>' +
+          '<div class="rst-ticket-unit">' + escapeHtml(r['Unit']||'—') + '<div class="type">' + escapeHtml(r['Unit Type']||'') + '</div></div>' +
+          '<div class="rst-ticket-meta">' +
+            '<span class="rst-status" style="background:' + color + '22;color:' + color + ';border:1px solid ' + color + '55;">' + escapeHtml(r['Status']||'') + '</span>' +
+            '<span class="rst-price">' + price + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="rst-ticket-side">' + (r['Release Technician'] ? ('OUT · ' + escapeHtml(r['Release Technician'])) : '') + '</div>' +
+      '</div>';
+  }
+
+  function formatDate(d){
+    try{
+      const dt = new Date(d);
+      if (isNaN(dt.getTime())) return d;
+      return dt.toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'});
+    }catch(e){ return d; }
+  }
+
+  async function callApi(action, params){
+    if (!API_URL) throw new Error('No Web App URL configured yet.');
+    params = params || {};
+    const url = new URL(API_URL);
+    url.searchParams.set('action', action);
+    Object.keys(params).forEach(k => url.searchParams.set(k, params[k]));
+    const res = await fetch(url.toString());
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error || 'Request failed');
+    return json.data;
+  }
+
+  async function loadRecords(){
+    loading = true; renderList();
+    try{
+      const data = await callApi('list');
+      records = data;
+      clearBanner();
+    }catch(err){
+      showBanner('Could not load tickets: ' + err.message, 'err');
+    }finally{
+      loading = false;
+      renderFilters();
+      renderList();
+    }
+  }
+
+  // ---------- Settings modal ----------
+  async function openSettingsModal(){
+    modalRoot.innerHTML = '' +
+      '<div class="rst-overlay" id="rst-overlay">' +
+        '<div class="rst-modal">' +
+          '<h2>Connect your Google Sheet</h2>' +
+          '<div class="sub">Paste the Web App URL you got from deploying the Apps Script (ends in /exec). This is shared with everyone who opens this tracker.</div>' +
+          '<div class="rst-field">' +
+            '<label>WEB APP URL</label>' +
+            '<input type="text" id="rst-url-input" placeholder="https://script.google.com/macros/s/…/exec" value="' + escapeHtml(API_URL) + '" />' +
+          '</div>' +
+          '<div class="rst-field">' +
+            '<label>SHOP NAME (optional)</label>' +
+            '<input type="text" id="rst-shopname-input" placeholder="e.g. QuickFix Computer Repair" value="' + escapeHtml(document.getElementById('rst-shop-name').textContent === 'Repair Tracker' ? '' : document.getElementById('rst-shop-name').textContent) + '" />' +
+          '</div>' +
+          '<div class="rst-modal-actions">' +
+            '<span></span>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<button class="rst-btn" id="rst-cancel-settings">Cancel</button>' +
+              '<button class="rst-btn rst-btn-primary" id="rst-save-settings">Save & Connect</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    document.getElementById('rst-cancel-settings').addEventListener('click', closeModal);
+    document.getElementById('rst-overlay').addEventListener('click', e => { if (e.target.id === 'rst-overlay') closeModal(); });
+    document.getElementById('rst-save-settings').addEventListener('click', async () => {
+      const url = document.getElementById('rst-url-input').value.trim();
+      const shopName = document.getElementById('rst-shopname-input').value.trim();
+      if (!url){ showBanner('Please paste a Web App URL.', 'err'); return; }
+      API_URL = url;
+      try{
+        await window.storage.set('api_url', url, true);
+        if (shopName){
+          await window.storage.set('shop_name', shopName, true);
+          document.getElementById('rst-shop-name').textContent = shopName;
+        }
+      }catch(e){ /* storage best-effort */ }
+      closeModal();
+      loadRecords();
+    });
+  }
+
+  function closeModal(){ modalRoot.innerHTML = ''; }
+
+  // ---------- New / Edit modal ----------
+  function fieldTemplate(r){
+    r = r || {};
+    return '' +
+      '<div class="rst-field">' +
+        '<label>CUSTOMER NAME</label>' +
+        '<input type="text" id="f-customer" value="' + escapeHtml(r['Customer Name']||'') + '" placeholder="Juan Dela Cruz" />' +
+      '</div>' +
+      '<div class="rst-row2">' +
+        '<div class="rst-field"><label>PHONE</label><input type="text" id="f-phone" value="' + escapeHtml(r['Phone']||'') + '" placeholder="09xx xxx xxxx" /></div>' +
+        '<div class="rst-field"><label>DATE IN</label><input type="date" id="f-date" value="' + escapeHtml(toDateInputValue(r['Date In'])) + '" /></div>' +
+      '</div>' +
+      '<div class="rst-row2">' +
+        '<div class="rst-field"><label>UNIT / MODEL</label><input type="text" id="f-unit" value="' + escapeHtml(r['Unit']||'') + '" placeholder="e.g. ASUS TUF F15" /></div>' +
+        '<div class="rst-field"><label>UNIT TYPE</label><select id="f-unittype">' + UNIT_TYPES.map(t => '<option value="'+t+'" '+(r['Unit Type']===t?'selected':'')+'>'+t+'</option>').join('') + '</select></div>' +
+      '</div>' +
+      '<div class="rst-row2">' +
+        '<div class="rst-field"><label>STATUS</label><select id="f-status">' + STATUSES.map(s => '<option value="'+s.key+'" '+(r['Status']===s.key?'selected':'')+'>'+s.key+'</option>').join('') + '</select></div>' +
+        '<div class="rst-field"><label>PRICE (₱)</label><input type="number" id="f-price" value="' + escapeHtml(r['Price']||'') + '" placeholder="0" /></div>' +
+      '</div>' +
+      '<div class="rst-field"><label>RELEASE TECHNICIAN</label><input type="text" id="f-tech" value="' + escapeHtml(r['Release Technician']||'') + '" placeholder="Who released / is handling this unit" /></div>' +
+      '<div class="rst-field"><label>NOTES</label><textarea id="f-notes" placeholder="Diagnosis, parts needed, customer requests…">' + escapeHtml(r['Notes']||'') + '</textarea></div>';
+  }
+
+  function toDateInputValue(d){
+    if (!d) return new Date().toISOString().slice(0,10);
+    const dt = new Date(d);
+    if (isNaN(dt.getTime())) return new Date().toISOString().slice(0,10);
+    return dt.toISOString().slice(0,10);
+  }
+
+  function readForm(){
+    return {
+      'Customer Name': document.getElementById('f-customer').value.trim(),
+      'Phone': document.getElementById('f-phone').value.trim(),
+      'Unit': document.getElementById('f-unit').value.trim(),
+      'Unit Type': document.getElementById('f-unittype').value,
+      'Status': document.getElementById('f-status').value,
+      'Date In': document.getElementById('f-date').value,
+      'Price': document.getElementById('f-price').value,
+      'Release Technician': document.getElementById('f-tech').value.trim(),
+      'Notes': document.getElementById('f-notes').value.trim()
+    };
+  }
+
+  function openNewModal(){
+    if (!API_URL){ openSettingsModal(); return; }
+    modalRoot.innerHTML = '' +
+      '<div class="rst-overlay" id="rst-overlay">' +
+        '<div class="rst-modal">' +
+          '<h2>New Ticket</h2>' +
+          '<div class="sub">Adds a new row to your Google Sheet.</div>' +
+          '<div id="rst-modal-banner"></div>' +
+          fieldTemplate({'Status':'Received'}) +
+          '<div class="rst-modal-actions">' +
+            '<span></span>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<button class="rst-btn" id="rst-cancel">Cancel</button>' +
+              '<button class="rst-btn rst-btn-primary" id="rst-save">Create Ticket</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    document.getElementById('rst-cancel').addEventListener('click', closeModal);
+    document.getElementById('rst-overlay').addEventListener('click', e => { if (e.target.id === 'rst-overlay') closeModal(); });
+    document.getElementById('rst-save').addEventListener('click', async () => {
+      const record = readForm();
+      if (!record['Customer Name']){
+        document.getElementById('rst-modal-banner').innerHTML = '<div class="rst-banner err">Customer name is required.</div>';
+        return;
+      }
+      const btn = document.getElementById('rst-save');
+      btn.disabled = true; btn.textContent = 'Saving…';
+      try{
+        await callApi('add', { data: JSON.stringify(record) });
+        closeModal();
+        loadRecords();
+      }catch(err){
+        document.getElementById('rst-modal-banner').innerHTML = '<div class="rst-banner err">' + escapeHtml(err.message) + '</div>';
+        btn.disabled = false; btn.textContent = 'Create Ticket';
+      }
+    });
+  }
+
+  function openEditModal(id){
+    const r = records.find(x => x['ID'] === id);
+    if (!r) return;
+    modalRoot.innerHTML = '' +
+      '<div class="rst-overlay" id="rst-overlay">' +
+        '<div class="rst-modal">' +
+          '<h2>Ticket ' + escapeHtml(r['ID']) + '</h2>' +
+          '<div class="sub">Created ' + (r['Created At'] ? formatDate(r['Created At']) : '—') + '</div>' +
+          '<div id="rst-modal-banner"></div>' +
+          fieldTemplate(r) +
+          '<div class="rst-modal-actions">' +
+            '<button class="rst-btn rst-btn-danger" id="rst-delete">Delete</button>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<button class="rst-btn" id="rst-cancel">Cancel</button>' +
+              '<button class="rst-btn rst-btn-primary" id="rst-save">Save Changes</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    document.getElementById('rst-cancel').addEventListener('click', closeModal);
+    document.getElementById('rst-overlay').addEventListener('click', e => { if (e.target.id === 'rst-overlay') closeModal(); });
+    document.getElementById('rst-save').addEventListener('click', async () => {
+      const record = readForm();
+      record['ID'] = r['ID'];
+      const btn = document.getElementById('rst-save');
+      btn.disabled = true; btn.textContent = 'Saving…';
+      try{
+        await callApi('update', { data: JSON.stringify(record) });
+        closeModal();
+        loadRecords();
+      }catch(err){
+        document.getElementById('rst-modal-banner').innerHTML = '<div class="rst-banner err">' + escapeHtml(err.message) + '</div>';
+        btn.disabled = false; btn.textContent = 'Save Changes';
+      }
+    });
+    document.getElementById('rst-delete').addEventListener('click', async () => {
+      if (!confirm('Delete ticket ' + r['ID'] + '? This cannot be undone.')) return;
+      const btn = document.getElementById('rst-delete');
+      btn.disabled = true; btn.textContent = 'Deleting…';
+      try{
+        await callApi('delete', { id: r['ID'] });
+        closeModal();
+        loadRecords();
+      }catch(err){
+        document.getElementById('rst-modal-banner').innerHTML = '<div class="rst-banner err">' + escapeHtml(err.message) + '</div>';
+        btn.disabled = false; btn.textContent = 'Delete';
+      }
+    });
+  }
+
+  // ---------- Init ----------
+  document.getElementById('rst-settings-btn').addEventListener('click', openSettingsModal);
+  document.getElementById('rst-new-btn').addEventListener('click', openNewModal);
+  document.getElementById('rst-search').addEventListener('input', (e) => {
+    searchTerm = e.target.value;
+    renderList();
+  });
+
+  (async function init(){
+    try{
+      const urlRes = await window.storage.get('api_url', true);
+      if (urlRes && urlRes.value) API_URL = urlRes.value;
+    }catch(e){ /* not set yet */ }
+    try{
+      const nameRes = await window.storage.get('shop_name', true);
+      if (nameRes && nameRes.value) document.getElementById('rst-shop-name').textContent = nameRes.value;
+    }catch(e){ /* not set yet */ }
+
+    renderFilters();
+    if (API_URL){
+      loadRecords();
+    }else{
+      renderList();
+    }
+  })();
+})();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
