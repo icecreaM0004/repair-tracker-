@@ -813,7 +813,7 @@
       '</div>' +
       '<div class="rst-field"><label>RELEASE TECHNICIAN (OPTIONAL)</label><input type="text" id="f-tech" value="' + escapeHtml(r['Release Technician']||'') + '" placeholder="Who released / is handling this unit" /></div>' +
       '<div class="rst-field"><label>UNIT PASSWORD (OPTIONAL)</label><input type="text" id="f-password" value="' + escapeHtml(r['Password']||'') + '" placeholder="Login password / PIN, for repair access only" /></div>' +
-      '<div class="rst-field"><label>NOTES (OPTIONAL)</label><textarea id="f-notes" placeholder="Diagnosis, parts needed, customer requests…">' + escapeHtml(r['Notes']||'') + '</textarea></div>';
+      '<div class="rst-field"><label>ISSUE / NOTES (OPTIONAL)</label><textarea id="f-notes" placeholder="What's wrong with the unit — this prints on the sticker">' + escapeHtml(r['Notes']||'') + '</textarea></div>';
   }
 
   function toDateInputValue(d){
@@ -909,9 +909,7 @@
           '<tr class="hl"><td class="label">Name</td><td>' + escapeHtml(r['Customer Name']||'—') + '</td></tr>' +
           '<tr class="hl"><td class="label">Number</td><td>' + escapeHtml(r['Phone']||'—') + '</td></tr>' +
           '<tr><td class="label">Date &amp; Time</td><td>' + escapeHtml(dt) + '</td></tr>' +
-          '<tr><td class="label">ID</td><td>' + escapeHtml(r['ID']) + '</td></tr>' +
-          '<tr><td class="label">Unit</td><td>' + escapeHtml((r['Unit']||'—') + (r['Unit Type'] ? ' (' + r['Unit Type'] + ')' : '')) + '</td></tr>' +
-          '<tr><td class="label">Status</td><td>' + escapeHtml(r['Status']||'—') + '</td></tr>' +
+          '<tr><td class="label">Issue</td><td>' + escapeHtml(r['Notes']||'—') + '</td></tr>' +
           '<tr><td class="label">Password</td><td>' + escapeHtml(r['Password']||'—') + '</td></tr>' +
         '</table>' +
       '</div>';
