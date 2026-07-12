@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
-<title>Repair Shop Tracker</title>
+<title>Compair Repair Tracker</title>
 <link rel="manifest" href="manifest.json" />
 <meta name="theme-color" content="#1B1E24" />
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Repairs" />
+<meta name="apple-mobile-web-app-title" content="Compair" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>html,body{margin:0;padding:0;}</style>
@@ -40,26 +40,48 @@
     min-height:100vh;
     padding:0;
     -webkit-font-smoothing:antialiased;
+    transition:background .15s, color .15s;
   }
+  /* Light mode override */
+  .rst-root.rst-light{
+    --bg:#F6F4EF;
+    --surface:#FFFFFF;
+    --surface-2:#F0EDE5;
+    --line:#DEDAD0;
+    --text:#20232A;
+    --text-dim:#6B7076;
+    --amber:#D98A2B;
+    --amber-dim:#E9C088;
+    --teal:#2F9C8C;
+    --red:#C64435;
+    --blue:#3E7FC4;
+    --purple:#8367C7;
+  }
+  .rst-root.rst-light .rst-btn-primary{color:#fff;}
+  .rst-root.rst-light .rst-fab{color:#fff;box-shadow:0 6px 18px rgba(217,138,43,0.35), 0 2px 6px rgba(0,0,0,0.12);}
+
   .rst-topbar{
     display:flex;
     align-items:center;
     justify-content:space-between;
-    padding:16px 20px;
+    padding:14px 20px;
     border-bottom:1px solid var(--line);
     background:var(--surface);
     position:sticky;top:0;z-index:20;
+    gap:10px;flex-wrap:wrap;
   }
   .rst-brand{
     display:flex;
     align-items:center;
     gap:12px;
+    min-width:0;
   }
   .rst-logo{
     width:38px;height:38px;border-radius:10px;object-fit:cover;
     background:#fff;
     flex-shrink:0;
   }
+  .rst-brand-text{min-width:0;}
   .rst-brand-text .tag{
     font-family:var(--font-mono);
     font-size:10.5px;
@@ -68,11 +90,15 @@
     display:block;
   }
   .rst-brand-text h1{
-    font-size:17px;
+    font-size:16px;
     font-weight:700;
     margin:0;
     letter-spacing:-0.01em;
-    line-height:1.2;
+    line-height:1.25;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:220px;
   }
   .rst-topbar-actions{display:flex;gap:8px;align-items:center;}
   .rst-btn{
@@ -103,7 +129,6 @@
   }
   .rst-main{padding:18px 20px 100px;max-width:1200px;margin:0 auto;}
 
-  /* Floating add button */
   .rst-fab{
     position:fixed;
     right:20px;
@@ -125,21 +150,20 @@
   .rst-fab:hover{box-shadow:0 8px 22px rgba(242,163,60,0.5), 0 2px 6px rgba(0,0,0,0.3);}
   .rst-fab:active{transform:scale(0.92);}
 
-  /* Toast */
   .rst-toast-area{
     position:fixed;left:50%;bottom:96px;transform:translateX(-50%);
     z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center;
     pointer-events:none;
   }
   .rst-toast{
-    background:#2F343E;
+    background:var(--surface-2);
     border:1px solid var(--line);
     color:var(--text);
     padding:11px 18px;
     border-radius:24px;
     font-size:13px;
     font-weight:600;
-    box-shadow:0 6px 20px rgba(0,0,0,0.35);
+    box-shadow:0 6px 20px rgba(0,0,0,0.25);
     display:flex;align-items:center;gap:8px;
     animation:rst-toast-in .18s ease-out;
   }
@@ -229,17 +253,20 @@
   .rst-ticket-body{
     padding:14px 16px;
     display:grid;
-    grid-template-columns:100px 1.4fr 1fr 1fr;
+    grid-template-columns:1.5fr 95px 1fr 1fr;
     gap:10px 16px;
     align-items:center;
   }
+  .rst-ticket-highlight{min-width:0;}
+  .rst-ticket-customer{font-weight:800;font-size:15.5px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rst-ticket-number{font-weight:700;font-size:13.5px;color:var(--amber);font-family:var(--font-mono);margin-top:2px;}
+  .rst-ticket-datecol{display:flex;flex-direction:column;gap:3px;}
   .rst-ticket-id{
     font-family:var(--font-mono);
-    font-size:12px;
+    font-size:11px;
     color:var(--text-dim);
   }
-  .rst-ticket-customer{font-weight:700;font-size:15px;}
-  .rst-ticket-sub{font-size:12.5px;color:var(--text-dim);margin-top:2px;}
+  .rst-ticket-sub{font-size:12px;color:var(--text-dim);}
   .rst-ticket-unit{font-size:13.5px;display:flex;align-items:center;gap:6px;}
   .rst-ticket-unit .icon{font-size:18px;}
   .rst-ticket-unit .type{font-size:11.5px;color:var(--text-dim);}
@@ -272,7 +299,6 @@
     max-width:110px;
   }
 
-  /* Modal */
   .rst-overlay{
     position:fixed;inset:0;
     background:rgba(0,0,0,0.55);
@@ -378,33 +404,39 @@
   }
   .rst-add-row-btn:hover{border-color:var(--amber-dim);color:var(--amber);}
 
-  /* Printable claim stub */
+  /* Printable unit tag sticker - styled like a form/table */
   .rst-print-area{display:none;}
   @media print{
-    @page{margin:6mm;size:auto;}
+    @page{margin:5mm;size:auto;}
     body *{visibility:hidden;}
     .rst-print-area, .rst-print-area *{visibility:visible;}
     .rst-print-area{
       display:block;
       position:absolute;top:0;left:0;
-      width:60mm;
-      padding:6px;color:#000;font-family:var(--font-sans);
+      width:64mm;
+      color:#000;font-family:var(--font-sans);
     }
   }
-  .rst-stub-label{font-size:8.5px;letter-spacing:0.12em;text-align:center;color:#555;margin:0 0 6px;}
-  .rst-stub-id{
-    font-family:var(--font-mono);font-size:20px;font-weight:700;text-align:center;
-    border:1.5px dashed #000;border-radius:5px;padding:4px;margin-bottom:8px;letter-spacing:0.03em;
+  .rst-stub-card{border:2px solid #000;border-radius:6px;overflow:hidden;}
+  .rst-stub-header{
+    display:flex;align-items:center;justify-content:space-between;gap:6px;
+    padding:6px 8px;border-bottom:2px solid #000;
+    font-weight:800;font-size:11px;line-height:1.25;
   }
-  .rst-stub-row{display:flex;justify-content:space-between;gap:6px;font-size:10px;padding:3px 0;border-bottom:1px solid #ddd;}
-  .rst-stub-row b{font-weight:700;text-align:right;}
+  .rst-stub-header .icon{font-size:16px;flex-shrink:0;}
+  .rst-stub-table{width:100%;border-collapse:collapse;}
+  .rst-stub-table td{border-bottom:1px solid #000;padding:4px 6px;font-size:9.5px;vertical-align:middle;}
+  .rst-stub-table tr:last-child td{border-bottom:none;}
+  .rst-stub-table td.label{width:36%;border-right:1px solid #000;font-weight:600;color:#333;}
+  .rst-stub-table tr.hl td{font-size:12.5px;font-weight:800;padding:6px;}
 
   @media (max-width:720px){
-    .rst-ticket-body{grid-template-columns:1fr;}
+    .rst-ticket-body{grid-template-columns:1fr 1fr;}
+    .rst-ticket-highlight{grid-column:1 / -1;}
     .rst-ticket-meta{align-items:flex-start;text-align:left;}
     .rst-ticket-side{display:none;}
     .rst-row2{grid-template-columns:1fr;}
-    .rst-brand-text h1{font-size:15.5px;}
+    .rst-brand-text h1{font-size:14.5px;max-width:150px;}
   }
 </style>
 
@@ -414,10 +446,11 @@
       <img class="rst-logo" id="rst-logo-img" src="icons/icon-192.png" alt="" onerror="this.style.display='none'" />
       <div class="rst-brand-text">
         <span class="tag">TICKETS</span>
-        <h1 id="rst-shop-name">Repair Tracker</h1>
+        <h1 id="rst-shop-name">Compair Computer Repair Services</h1>
       </div>
     </div>
     <div class="rst-topbar-actions">
+      <button class="rst-btn rst-btn-icon" id="rst-theme-btn" title="Toggle light/dark">☀️</button>
       <button class="rst-btn rst-btn-icon" id="rst-settings-btn" title="Settings">⚙</button>
     </div>
   </div>
@@ -442,6 +475,7 @@
 
 <script>
 (function(){
+  const DEFAULT_SHOP_NAME = 'Compair Computer Repair Services';
   const STATUSES = [
     { key: 'Received', color: '#5C9DE0' },
     { key: 'Diagnosing', color: '#A084DC' },
@@ -469,17 +503,20 @@
   let API_URL = '';
   let SHOP_PHONE = '9216236104';
   let PRICE_LIST = DEFAULT_PRICE_LIST.slice();
+  let THEME = 'dark';
   let records = [];
   let activeStatusFilter = 'All';
   let searchTerm = '';
   let loading = false;
 
+  const rootEl = document.getElementById('rst-root');
   const listArea = document.getElementById('rst-list-area');
   const bannerArea = document.getElementById('rst-banner-area');
   const modalRoot = document.getElementById('rst-modal-root');
   const filtersEl = document.getElementById('rst-filters');
   const toastArea = document.getElementById('rst-toast-area');
   const printArea = document.getElementById('rst-print-area');
+  const themeBtn = document.getElementById('rst-theme-btn');
 
   function unitIcon(type){
     const u = UNIT_TYPES.find(u => u.key === type);
@@ -496,6 +533,17 @@
       return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
     });
   }
+
+  function applyTheme(t){
+    if (t === 'light'){ rootEl.classList.add('rst-light'); themeBtn.textContent = '🌙'; }
+    else { rootEl.classList.remove('rst-light'); themeBtn.textContent = '☀️'; }
+  }
+
+  themeBtn.addEventListener('click', () => {
+    THEME = THEME === 'dark' ? 'light' : 'dark';
+    applyTheme(THEME);
+    try{ localStorage.setItem('theme', THEME); }catch(e){}
+  });
 
   function showToast(msg, type){
     const el = document.createElement('div');
@@ -569,8 +617,8 @@
       '<div class="rst-ticket" data-id="' + escapeHtml(r['ID']) + '">' +
         '<div class="rst-ticket-stub" style="--stub-color:' + color + '"></div>' +
         '<div class="rst-ticket-body">' +
-          '<div><div class="rst-ticket-id">' + escapeHtml(r['ID']) + '</div><div class="rst-ticket-sub">' + date + '</div></div>' +
-          '<div><div class="rst-ticket-customer">' + escapeHtml(r['Customer Name'] || 'Unnamed') + '</div><div class="rst-ticket-sub">' + escapeHtml(formatPhoneDisplay(r['Phone'])||'') + '</div></div>' +
+          '<div class="rst-ticket-highlight"><div class="rst-ticket-customer">' + escapeHtml(r['Customer Name'] || 'Unnamed') + '</div><div class="rst-ticket-number">' + escapeHtml(r['Phone']||'No number') + '</div></div>' +
+          '<div class="rst-ticket-datecol"><div class="rst-ticket-sub">' + date + '</div><div class="rst-ticket-id">' + escapeHtml(r['ID']) + '</div></div>' +
           '<div class="rst-ticket-unit"><span class="icon">' + unitIcon(r['Unit Type']) + '</span><div><div>' + escapeHtml(r['Unit']||'—') + '</div><div class="type">' + escapeHtml(r['Unit Type']||'') + '</div></div></div>' +
           '<div class="rst-ticket-meta">' +
             '<span class="rst-status" style="background:' + color + '22;color:' + color + ';border:1px solid ' + color + '55;">' + escapeHtml(r['Status']||'') + '</span>' +
@@ -595,11 +643,6 @@
       if (isNaN(dt.getTime())) return d;
       return dt.toLocaleDateString(undefined, {month:'short', day:'numeric'}) + ' ' + dt.toLocaleTimeString(undefined, {hour:'numeric', minute:'2-digit'});
     }catch(e){ return d; }
-  }
-
-  function formatPhoneDisplay(p){
-    if (!p) return '';
-    return p;
   }
 
   function digitsOnly(s){ return (s||'').replace(/\D/g, ''); }
@@ -636,8 +679,23 @@
       const data = await callApi('list');
       records = data;
       clearBanner();
+      try{
+        localStorage.setItem('cached_records', JSON.stringify(data));
+        localStorage.setItem('cached_at', new Date().toISOString());
+      }catch(e){ /* cache best-effort */ }
     }catch(err){
-      showBanner('Could not load tickets: ' + err.message, 'err');
+      let cached = null;
+      try{
+        const raw = localStorage.getItem('cached_records');
+        if (raw) cached = JSON.parse(raw);
+      }catch(e){ /* no cache */ }
+      if (cached){
+        records = cached;
+        const cachedAt = localStorage.getItem('cached_at');
+        showBanner('You\'re offline — showing tickets as of ' + (cachedAt ? formatDateTime(cachedAt) : 'last sync') + '. Changes won\'t save until you\'re back online.', 'info');
+      }else{
+        showBanner('Could not load tickets: ' + err.message, 'err');
+      }
     }finally{
       loading = false;
       renderFilters();
@@ -678,7 +736,7 @@
           '</div>' +
           '<div class="rst-field">' +
             '<label>SHOP NAME</label>' +
-            '<input type="text" id="rst-shopname-input" placeholder="e.g. Compair Computer Sales and Repair" value="' + escapeHtml(document.getElementById('rst-shop-name').textContent === 'Repair Tracker' ? '' : document.getElementById('rst-shop-name').textContent) + '" />' +
+            '<input type="text" id="rst-shopname-input" value="' + escapeHtml(document.getElementById('rst-shop-name').textContent) + '" />' +
           '</div>' +
           '<div class="rst-field">' +
             '<label>SHOP CONTACT NUMBER</label>' +
@@ -742,7 +800,7 @@
         '<input type="text" id="f-customer" value="' + escapeHtml(r['Customer Name']||'') + '" placeholder="Juan Dela Cruz" />' +
       '</div>' +
       '<div class="rst-row2">' +
-        '<div class="rst-field"><label>PHONE (OPTIONAL)</label><div class="rst-phone-row"><span class="rst-phone-prefix">+63</span><input type="text" id="f-phone" value="' + escapeHtml(stripToLocalDigits(r['Phone'])) + '" placeholder="921 623 6104" /></div></div>' +
+        '<div class="rst-field"><label>NUMBER (OPTIONAL)</label><div class="rst-phone-row"><span class="rst-phone-prefix">+63</span><input type="text" id="f-phone" value="' + escapeHtml(stripToLocalDigits(r['Phone'])) + '" placeholder="921 623 6104" /></div></div>' +
         '<div class="rst-field"><label>DATE IN</label><input type="date" id="f-date" value="' + escapeHtml(toDateInputValue(r['Date In'])) + '" /></div>' +
       '</div>' +
       '<div class="rst-row2">' +
@@ -842,13 +900,21 @@
   }
 
   function printStub(r){
+    const shopName = document.getElementById('rst-shop-name').textContent || DEFAULT_SHOP_NAME;
+    const dt = formatDateTime(r['Created At'] || new Date().toISOString());
     printArea.innerHTML = '' +
-      '<div class="rst-stub-label">UNIT TAG · STICK ON DEVICE</div>' +
-      '<div class="rst-stub-id">' + escapeHtml(r['ID']) + '</div>' +
-      '<div class="rst-stub-row"><span>Customer</span><b>' + escapeHtml(r['Customer Name']||'—') + '</b></div>' +
-      '<div class="rst-stub-row"><span>Number</span><b>' + escapeHtml(r['Phone']||'—') + '</b></div>' +
-      '<div class="rst-stub-row"><span>Issue Date</span><b>' + escapeHtml(r['Date In'] ? formatDate(r['Date In']) : formatDate(r['Created At']||new Date().toISOString())) + '</b></div>' +
-      '<div class="rst-stub-row"><span>Password</span><b>' + escapeHtml(r['Password']||'—') + '</b></div>';
+      '<div class="rst-stub-card">' +
+        '<div class="rst-stub-header"><span>' + escapeHtml(shopName) + '</span><span class="icon">💻</span></div>' +
+        '<table class="rst-stub-table">' +
+          '<tr class="hl"><td class="label">Name</td><td>' + escapeHtml(r['Customer Name']||'—') + '</td></tr>' +
+          '<tr class="hl"><td class="label">Number</td><td>' + escapeHtml(r['Phone']||'—') + '</td></tr>' +
+          '<tr><td class="label">Date &amp; Time</td><td>' + escapeHtml(dt) + '</td></tr>' +
+          '<tr><td class="label">ID</td><td>' + escapeHtml(r['ID']) + '</td></tr>' +
+          '<tr><td class="label">Unit</td><td>' + escapeHtml((r['Unit']||'—') + (r['Unit Type'] ? ' (' + r['Unit Type'] + ')' : '')) + '</td></tr>' +
+          '<tr><td class="label">Status</td><td>' + escapeHtml(r['Status']||'—') + '</td></tr>' +
+          '<tr><td class="label">Password</td><td>' + escapeHtml(r['Password']||'—') + '</td></tr>' +
+        '</table>' +
+      '</div>';
     setTimeout(() => window.print(), 50);
   }
 
@@ -916,6 +982,11 @@
   });
 
   (function init(){
+    try{
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) THEME = savedTheme;
+    }catch(e){ /* default dark */ }
+    applyTheme(THEME);
     try{
       const savedUrl = localStorage.getItem('api_url');
       if (savedUrl) API_URL = savedUrl;
