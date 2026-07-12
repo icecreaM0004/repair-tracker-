@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NIIMBOT Bluetooth Test</title>
+<style>
+  body{
+    background:#1B1E24;color:#EDEAE3;font-family:system-ui,sans-serif;
+    display:flex;flex-direction:column;align-items:center;
+    padding:40px 20px;min-height:100vh;margin:0;
+  }
+  h1{font-size:18px;margin-bottom:6px;}
+  p.sub{color:#9AA1AC;font-size:13px;text-align:center;max-width:320px;margin-top:0;}
+  button{
+    background:#F2A33C;color:#1B1E24;border:none;border-radius:10px;
+    font-size:16px;font-weight:700;padding:16px 28px;margin-top:24px;
+    cursor:pointer;
+  }
+  button:active{transform:scale(0.97);}
+  #result{
+    margin-top:28px;padding:16px;border-radius:10px;background:#242830;
+    border:1px solid #3A4048;max-width:340px;font-size:13.5px;line-height:1.6;
+    white-space:pre-wrap;word-break:break-word;
+  }
+  .ok{color:#4FB0A0;font-weight:700;}
+  .fail{color:#E1584B;font-weight:700;}
+  .checklist{margin-top:30px;font-size:12.5px;color:#9AA1AC;max-width:320px;}
+  .checklist li{margin-bottom:6px;}
+</style>
+</head>
+<body>
+  <h1>🔵 NIIMBOT Bluetooth Test</h1>
+  <p class="sub">This just checks if your phone browser can see the printer. It doesn't print anything yet.</p>
+  <button id="scanBtn">Scan for Printer</button>
+  <div id="result" style="display:none;"></div>
+
+  <ul class="checklist">
+    <li>✅ Use Chrome (Android) or Chrome/Edge on a computer — this won't work on iPhone Safari</li>
+    <li>✅ Turn on your phone's Bluetooth</li>
+    <li>✅ Power on the NIIMBOT B1 and keep it nearby</li>
+    <li>✅ Tap the button below (a device picker should pop up)</li>
+  </ul>
+
+  <script>
+    const btn = document.getElementById('scanBtn');
+    const result = document.getElementById('result');
+
+    function show(html){
+      result.style.display = 'block';
+      result.innerHTML = html;
+    }
+
+    btn.addEventListener('click', async () => {
+      if (!navigator.bluetooth){
+        show('<span class="fail">✕ Web Bluetooth is not available in this browser.</span>\n\nThis usually means either:\n- You are on iPhone/Safari (not supported at all), or\n- You are on a browser that does not support Web Bluetooth.\n\nTry this same page in Chrome on an Android phone or a computer.');
+        return;
+      }
+      show('Opening device picker… choose your B1 in the list that pops up.');
+      try{
+        const device = await navigator.bluetooth.requestDevice({
+          acceptAllDevices: true,
+          optionalServices: []
+        });
+        show(
+          '<span class="ok">✓ Found a device!</span>\n\n' +
+          'Name: ' + (device.name || '(no name reported)') + '\n' +
+          'ID: ' + device.id + '\n\n' +
+          (device.name && device.name.toUpperCase().includes('B1')
+            ? 'This looks like your NIIMBOT B1 — Bluetooth detection works on this phone/browser. Ready to build real printing next.'
+            : 'This device was detected, but the name doesn\u2019t obviously say "B1". If this was the wrong device, tap Scan again and pick the correct one from the list — the printer usually shows up as a name containing "B1".')
+        );
+      }catch(err){
+        show('<span class="fail">✕ ' + (err.message || 'Scan was cancelled or failed') + '</span>\n\nIf you cancelled the picker, that\'s fine, just try again. If it failed outright, double check Bluetooth is on and the printer is powered on and nearby.');
+      }
+    });
+  </script>
+</body>
+</html>
