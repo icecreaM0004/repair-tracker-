@@ -1,7 +1,7 @@
 {
-  "name": "Repair Shop Tracker",
-  "short_name": "Repairs",
-  "description": "Ticket tracker for computer repair jobs",
+  "name": "Compair Computer Repair Services",
+  "short_name": "Compair",
+  "description": "Ticket tracker for Compair Computer Repair Services",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -9,7 +9,7 @@
   "theme_color": "#1B1E24",
   "orientation": "portrait-primary",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }
