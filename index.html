@@ -380,7 +380,13 @@
   const dayTodayBtn = document.getElementById('rst-day-today');
   const dayAllBtn = document.getElementById('rst-day-all');
 
-  function todayISO(){ return new Date().toISOString().slice(0,10); }
+  function todayISO(){
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return y + '-' + m + '-' + day;
+  }
 
   function unitIcon(type){
     const u = UNIT_TYPES.find(u => u.key === type);
@@ -724,9 +730,13 @@
 
   function toDateInputValue(d){
     if (!d) return todayISO();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
     const dt = new Date(d);
     if (isNaN(dt.getTime())) return todayISO();
-    return dt.toISOString().slice(0,10);
+    const y = dt.getFullYear();
+    const m = String(dt.getMonth()+1).padStart(2,'0');
+    const day = String(dt.getDate()).padStart(2,'0');
+    return y + '-' + m + '-' + day;
   }
 
   function readForm(){
