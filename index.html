@@ -139,7 +139,7 @@
   .rst-sales-item.total{background:rgba(242,163,60,0.1);border:1px solid var(--amber-dim);}
   .rst-sales-item.total .amt{color:var(--amber);font-size:17px;}
 
-  .rst-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+  .rst-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;position:sticky;top:70px;z-index:15;background:var(--bg);padding:6px 0;}
   .rst-search{
     flex:1;min-width:200px;background:var(--surface);border:1px solid var(--line);border-radius:10px;
     padding:11px 14px;color:var(--text);font-size:14px;font-family:var(--font-sans);
@@ -489,7 +489,7 @@
       if (dayFilter && r['Date In'] !== dayFilter) return false;
       if (activeStatusFilter !== 'All' && r['Status'] !== activeStatusFilter) return false;
       if (searchTerm){
-        const hay = [r['ID'], r['Customer Name'], r['Phone'], r['Unit'], r['Unit Type']].join(' ').toLowerCase();
+        const hay = [r['ID'], r['Customer Name'], r['Phone'], r['Unit'], r['Unit Type'], r['Notes']].join(' ').toLowerCase();
         if (!hay.includes(searchTerm.toLowerCase())) return false;
       }
       return true;
@@ -925,6 +925,13 @@
     }else{
       renderList();
     }
+
+    setInterval(() => {
+      if (!API_URL) return;
+      if (document.hidden) return;
+      if (modalRoot.children.length > 0) return; // do not disrupt an in-progress edit
+      loadRecords();
+    }, 60000);
   })();
 })();
 </script>
